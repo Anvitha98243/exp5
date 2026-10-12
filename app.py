@@ -24,7 +24,14 @@ FEATURES = [
 def home():
     return jsonify({
         "message": "Crop Recommendation API is running"
-    })
+    }), 200
+
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "healthy"
+    }), 200
 
 
 @app.route("/predict", methods=["POST"])
@@ -32,9 +39,14 @@ def predict():
     data = request.get_json(silent=True)
 
     if not isinstance(data, dict):
-        return jsonify({"error": "Send a JSON object"}), 400
+        return jsonify({
+            "error": "Send a JSON object"
+        }), 400
 
-    missing = [feature for feature in FEATURES if feature not in data]
+    missing = [
+        feature for feature in FEATURES
+        if feature not in data
+    ]
 
     if missing:
         return jsonify({
@@ -43,7 +55,10 @@ def predict():
         }), 400
 
     try:
-        values = [float(data[feature]) for feature in FEATURES]
+        values = [
+            float(data[feature])
+            for feature in FEATURES
+        ]
     except (TypeError, ValueError):
         return jsonify({
             "error": "All features must be numeric"
@@ -59,13 +74,24 @@ def predict():
             "error": "Trained model not found"
         }), 500
 
-    model = joblib.load(MODEL_PATH)
-    input_data = pd.DataFrame([values], columns=FEATURES)
-    predicted_crop = model.predict(input_data)[0]
+    try:
+        model = joblib.load(MODEL_PATH)
+        input_data = pd.DataFrame(
+            [values],
+            columns=FEATURES
+        )
 
-    return jsonify({
-        "predicted_crop": str(predicted_crop)
-    })
+        predicted_crop = model.predict(input_data)[0]
+
+        return jsonify({
+            "predicted_crop": str(predicted_crop)
+        }), 200
+
+    except Exception:
+        app.logger.exception("Crop prediction failed")
+        return jsonify({
+            "error": "Prediction failed"
+        }), 500
 
 
 if __name__ == "__main__":
