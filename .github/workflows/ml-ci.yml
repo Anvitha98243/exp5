@@ -44,14 +44,18 @@ jobs:
       - name: Run prediction API tests
         run: python -m unittest test_app.py -v
 
+     
       - name: Prepare release candidate
         run: |
-          mkdir -p release_candidate
+          mkdir -p release_candidate/artifacts
           cp app.py release_candidate/
-          cp artifacts/crop_model.joblib release_candidate/
+          cp artifacts/crop_model.joblib release_candidate/artifacts/
           cp metrics.json release_candidate/
           cp requirements.txt release_candidate/
+          cp Dockerfile release_candidate/
+          cp .dockerignore release_candidate/
           printf "Crop Recommendation API\nRun: python app.py\nEndpoint: POST /predict\n" > release_candidate/DEPLOYMENT.txt
+
 
       - name: Upload release candidate
         uses: actions/upload-artifact@v4
