@@ -1,7 +1,7 @@
-```yaml
+
 name: Crop Recommendation Continuous Delivery
 
-on:
+"on":
   push:
     branches:
       - main
@@ -92,19 +92,9 @@ jobs:
           response=$(curl --fail --silent --show-error \
             -X POST http://localhost:5000/predict \
             -H "Content-Type: application/json" \
-            -d '{
-              "N": 90,
-              "P": 42,
-              "K": 43,
-              "temperature": 20.8,
-              "humidity": 82,
-              "ph": 6.5,
-              "rainfall": 202.9
-            }')
-
+            -d '{"N":90,"P":42,"K":43,"temperature":20.8,"humidity":82,"ph":6.5,"rainfall":202.9}')
           echo "Prediction response: $response"
-          echo "$response" | python -c \
-            "import json,sys; data=json.load(sys.stdin); assert 'predicted_crop' in data, 'Prediction field missing'; print('Prediction endpoint test passed')"
+          echo "$response" | python -c "import json,sys; data=json.load(sys.stdin); assert 'predicted_crop' in data; print('Prediction endpoint test passed')"
 
       - name: Show container logs on failure
         if: failure()
@@ -113,4 +103,3 @@ jobs:
       - name: Clean up Docker container
         if: always()
         run: docker rm -f crop-api-ci || true
-```
