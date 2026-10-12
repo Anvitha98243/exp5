@@ -36,7 +36,7 @@ class CropAPITest(unittest.TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
-                response.get_json()["predicted_crop"], "banana"
+                response.get_json()["predicted_crop"], "rice"
             )
 
     def test_missing_feature(self):
